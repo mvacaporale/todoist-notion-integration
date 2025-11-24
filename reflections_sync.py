@@ -37,6 +37,16 @@ class TodoistClient:
         response.raise_for_status()
         return response.json()
 
+    def complete_task(self, task_id: str) -> bool:
+        """Mark a task as completed"""
+        try:
+            response = requests.post(f"{self.base_url}/tasks/{task_id}/close", headers=self.headers)
+            response.raise_for_status()
+            return True
+        except Exception as e:
+            print(f"Error completing task {task_id}: {e}")
+            return False
+
 
 class NotionClient:
     def __init__(self, token: str):
@@ -163,8 +173,24 @@ def main():
         page_id = notion.create_reflections_child_page(journal_page_id, week_title, tasks)
         print(f"Successfully created page with ID: {page_id}")
         print(f"Page contains {len(tasks)} reflection tasks")
+        
+        # Mark all tasks as completed in Todoist
+        completed_count = 0
+        failed_count = 0
+        for task in tasks:
+            if todoist.complete_task(task["id"]):
+                completed_count += 1
+            else:
+                failed_count += 1
+        
+        if completed_count > 0:
+            print(f"✓ Marked {completed_count} tasks as completed in Todoist")
+        if failed_count > 0:
+            print(f"⚠ Failed to complete {failed_count} tasks in Todoist")
+            
     except Exception as e:
         print(f"Error creating page: {e}")
+        print("Tasks were not marked as completed due to page creation failure")
 
 
 if __name__ == "__main__":
