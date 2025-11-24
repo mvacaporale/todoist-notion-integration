@@ -111,13 +111,23 @@ class NotionClient:
 
 
 def get_week_title(date: datetime) -> str:
-    """Generate week title in format 'Nov 25 Week 1'"""
+    """Generate week title based on Monday-based weeks in the month"""
     # Get the first day of the month
     first_day = date.replace(day=1)
     
-    # Calculate which week of the month this is
-    days_passed = date.day - 1
-    week_number = (days_passed // 7) + 1
+    # Find the first Monday of the month
+    # Monday is weekday 0, so we need to find how many days until first Monday
+    days_until_first_monday = (7 - first_day.weekday()) % 7
+    first_monday = first_day + timedelta(days=days_until_first_monday)
+    
+    # Calculate which Monday-based week this date falls into
+    if date < first_monday:
+        # If date is before first Monday, it's still "Week 1" 
+        week_number = 1
+    else:
+        # Calculate how many weeks have passed since first Monday
+        days_since_first_monday = (date - first_monday).days
+        week_number = (days_since_first_monday // 7) + 1
     
     # Format the title
     month_day = date.strftime("%b %d")
