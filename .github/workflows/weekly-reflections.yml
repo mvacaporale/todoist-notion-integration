@@ -2,8 +2,8 @@ name: Weekly Reflections Sync
 
 on:
   schedule:
-    # Run every Sunday at midnight UTC
-    - cron: '0 0 * * 0'
+    # Run every Monday at 4 AM Eastern Time (9 AM UTC)
+    - cron: '0 9 * * 1'
   
   # Allow manual trigger for testing
   workflow_dispatch:
